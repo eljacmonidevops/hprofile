@@ -48,6 +48,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_URL }} #OPTIONAL      
   BUILD_AND_PUBLISH:
+    needs: Testing
     runs-on: ubuntu-latest
     steps:
       - name: Code Checkout
@@ -55,9 +56,6 @@ jobs:
 
       - name: Update application.properties file
         run: |
-          echo "Updating application.properties file"
-          # Add your commands to update the file here
-          # For example, using sed to replace a placeholder value
           sed -i "s/^jdbc.username.*$/jdbc.username\=${{ secrets.RDS_USER }}/" src/main/resources/application.properties
           sed -i "s/^jdbc.password.*$/jdbc.password\=${{ secrets.DB_PASS }}/" src/main/resources/application.properties
           sed -i "s/db01/${{ secrets.RDS_ENDPOINT }}/" src/main/resources/application.properties
@@ -70,7 +68,7 @@ jobs:
           registry: ${{ secrets.REGISTRY }}
           repo: actapp
           region: ${{ env.AWS_REGION }}
-          tags: latest,${{ github.run_number}}
+          tags: latest,${{ github.run_number }}
           daemon_off: false
           dockerfile: ./Dockerfile
           context: ./    
